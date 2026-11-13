@@ -1,0 +1,9 @@
+# Connector manifest for the low-code SCIMREST connector (loaded by ManifestBasedConnector).
+# As the connector gets implemented, reference its schema and operation scripts under
+# the "connector" section (see ../scimrest-connector for examples).
+application:
+  name: "FleetDM Connector"
+  description: "FleetDM is a fleet management and device visibility platform."
+connector:
+  schema: []
+  operation: []
