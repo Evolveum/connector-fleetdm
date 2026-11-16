@@ -1,0 +1,11 @@
+objectClasses:
+  Host:
+    search:
+      endpoints:
+        - path: hosts
+          emptyFilterSupported: true
+          request:
+            queryParameters:
+              per_page: "500"
+          objectExtractor: |
+            return response.body().path("hosts")

@@ -1,0 +1,8 @@
+objectClasses:
+  Report:
+    search:
+      endpoints:
+        - path: queries
+          emptyFilterSupported: true
+          objectExtractor: |
+            return response.body().path("queries")

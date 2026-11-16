@@ -1,0 +1,13 @@
+objectClasses:
+  Report:
+    search:
+      endpoints:
+        - path: queries/{id}
+          singleResult: true
+          notFoundIsNoResult: true
+          supportedFilters:
+            - spec: attribute("id").eq().anySingleValue()
+              request: |
+                request.pathParameter("id", value)
+          objectExtractor: |
+            return response.body().path("query")

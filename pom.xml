@@ -26,6 +26,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <ConnectorBundle-ConnectorClass>com.evolveum.polygon.agent.fleetdm.FleetdmConnector</ConnectorBundle-ConnectorClass>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

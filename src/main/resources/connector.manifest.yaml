@@ -1,9 +1,67 @@
-# Connector manifest for the low-code SCIMREST connector (loaded by ManifestBasedConnector).
-# As the connector gets implemented, reference its schema and operation scripts under
-# the "connector" section (see ../scimrest-connector for examples).
+---
 application:
   name: "FleetDM Connector"
   description: "FleetDM is a fleet management and device visibility platform."
+  version: ""
+  apiVersion: "v1"
 connector:
-  schema: []
-  operation: []
+  integrationType: "rest"
+  authMethods:
+  - type: "bearer"
+    name: "Bearer token authentication"
+    quirks: >-
+      Sends the API token as Authorization: Bearer <token>.
+      Use an API-only Fleet user with the observer role.
+  schema:
+  - script: "/objects/inventory/Host/schema.yaml"
+    objectClass: "Host"
+    operation: "schema"
+    intent: "native"
+  - script: "/objects/reports/Report/schema.yaml"
+    objectClass: "Report"
+    operation: "schema"
+    intent: "native"
+  - script: "/objects/ai/Agent/schema.yaml"
+    objectClass: "Agent"
+    operation: "schema"
+    intent: "native"
+  - script: "/objects/ai/McpServer/schema.yaml"
+    objectClass: "McpServer"
+    operation: "schema"
+    intent: "native"
+  authorization:
+  - script: "/auth/authorization.yaml"
+    intent: "auth"
+  operation:
+  - script: "/objects/inventory/Host/search.all.yaml"
+    objectClass: "Host"
+    operation: "search"
+    intent: "all"
+  - script: "/objects/inventory/Host/search.id.yaml"
+    objectClass: "Host"
+    operation: "search"
+    intent: "id"
+  - script: "/objects/reports/Report/search.all.yaml"
+    objectClass: "Report"
+    operation: "search"
+    intent: "all"
+  - script: "/objects/reports/Report/search.id.yaml"
+    objectClass: "Report"
+    operation: "search"
+    intent: "id"
+  - script: "/objects/ai/Agent/search.report.yaml"
+    objectClass: "Agent"
+    operation: "search"
+    intent: "report"
+  - script: "/objects/ai/Agent/search.custom.yaml"
+    objectClass: "Agent"
+    operation: "search"
+    intent: "custom"
+  - script: "/objects/ai/McpServer/search.report.yaml"
+    objectClass: "McpServer"
+    operation: "search"
+    intent: "report"
+  - script: "/objects/ai/McpServer/search.custom.yaml"
+    objectClass: "McpServer"
+    operation: "search"
+    intent: "custom"

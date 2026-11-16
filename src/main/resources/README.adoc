@@ -1,0 +1,93 @@
+= FleetDM connector
+
+A read-only connector for discovering hosts, AI agents and MCP servers in midPoint, built on Polygon SCIMREST. It reads the Fleet REST API and the results of the `ai_tools` osquery table (Fleet 4.93 and later).
+
+== Layout
+
+[cols="1,3",options="header"]
+|===
+|Path |Contents
+|objects/ |Schemas and searches, grouped by area and object class.
+|auth/ |Authorization script. The API token is configured in the midPoint resource.
+|connector.manifest.yaml |Registers the schema, operation and authorization files, with object class and intent.
+|Messages.properties and configurationOverride.properties |Configuration labels and the settings that are hidden because the connector does not use them.
+|===
+
+Each object class has its own directory, for example `objects/ai/Agent/`:
+
+[cols="1,3",options="header"]
+|===
+|File |Purpose
+|schema.yaml |Attributes, types and identifier bindings.
+|search.all.yaml, search.id.yaml |Listing and lookup by identifier (Host, Report).
+|search.report.yaml |Reads the report and turns its rows into objects (Agent, McpServer).
+|search.custom.yaml |Finds the `ai_tools_inventory` report for the full listing and handles the lookup by identifier (Agent, McpServer).
+|===
+
+== Object classes
+
+[cols="1,2,3,2",options="header"]
+|===
+|Area |Object class |Purpose |UID and NAME
+|inventory |link:objects/inventory/Host/schema.yaml[Host] |Workstation enrolled in Fleet. |id, uuid
+|reports |link:objects/reports/Report/schema.yaml[Report] |Scheduled report; used to find the `ai_tools_inventory` report. |id, name
+|ai |link:objects/ai/Agent/schema.yaml[Agent] |AI tool reported by `ai_tools` (type `agents`), with its user and risk flags. |id, id
+|ai |link:objects/ai/McpServer/schema.yaml[McpServer] |MCP server configuration (type `mcp_server`), with transport, command and scope. |id, id
+|===
+
+== How the data is read
+
+Hosts come from `GET /hosts`. Agents and MCP servers come from the results of one scheduled report, `GET /queries/{id}/report`:
+
+----
+SELECT type, name, identifier, endpoint, running, username, uid, confidence, category,
+       risk_flags, path, sha256, detail FROM ai_tools
+----
+
+The report is created by the lab script (`ai_tools_inventory`, every 60 seconds). The data is available after its first run.
+
+The rows have no identifier of their own, so it is composed from the row.
+
+[cols="1,3",options="header"]
+|===
+|Object class |Identifier
+|Agent |`<host id>:<user>:<identifier>:<path>`
+|McpServer |`<host id>:<user>:<identifier>:<path>:<scope>`
+|===
+
+For MCP servers the `detail` column is unpacked into `scope`, `transport`, `command`, `args`, `env_keys` (names only, never values), `capabilities`, `launch_hash` and `source_type`. The same server configured in a user scope and in a project scope appears twice.
+
+A lookup by identifier finds the report, reads its rows and keeps the object with the same identifier.
+
+== Configuration
+
+[cols="2,3",options="header"]
+|===
+|Setting |Value
+|Base Address |The address of the Fleet API, for example `https://127.0.0.1:18443/api/v1/fleet`.
+|Test Endpoint |`version`
+|Trust All Certificates |On when Fleet uses a self-signed certificate.
+|API Token |The token of an API-only Fleet user with the observer role. Sent as `Authorization: Bearer <token>`.
+|===
+
+== Coverage
+
+[cols="1,3",options="header"]
+|===
+|Area |Current coverage
+|Reports |Only the `ai_tools_inventory` report is read; it must exist and must have run at least once.
+|LLM configuration |Not found in the `ai_tools` data.
+|Agent and MCP server link |Not modelled; MCP servers carry the host, user and configuration path of their agents.
+|Writes |None.
+|===
+
+== Build and install
+
+Requires JDK 21 and Maven 3. Run from the repository root:
+
+[source,shell]
+----
+mvn -pl fleetdm -am clean verify
+----
+
+Copy `fleetdm/target/connector-fleetdm-0.1.0-SNAPSHOT.jar` to `var/icf-connectors/` of midPoint and restart midPoint. Create the resource, then select the required object classes.

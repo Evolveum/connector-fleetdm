@@ -1,0 +1,37 @@
+objectClasses:
+  McpServer:
+    search:
+      endpoints:
+        - path: queries/{id}/report
+          notFoundIsNoResult: true
+          supportedFilters:
+            - spec: attribute("report_id").eq().anySingleValue()
+              request: |
+                request.pathParameter("id", value)
+          objectExtractor: |
+            import tools.jackson.databind.json.JsonMapper
+
+            def result = []
+            for (def row : response.body().path("results")) {
+                def c = row.path("columns")
+                if (c.path("type").asString("") != "mcp_server") {
+                    continue
+                }
+                def node = JsonMapper.shared().createObjectNode()
+                node.put("host_id", row.path("host_id").asLong())
+                node.put("host_name", row.path("host_name").asString(""))
+                node.put("last_fetched", row.path("last_fetched").asString(""))
+                node.put("report_id", response.body().path("report_id").asString())
+                for (def key : ["name", "identifier", "username", "uid", "path", "category", "confidence", "running", "risk_flags", "sha256"]) {
+                    node.put(key, c.path(key).asString(""))
+                }
+                node.put("endpoint", c.path("endpoint").asString(""))
+                def detail = JsonMapper.shared().readTree(c.path("detail").asString("") ?: "{}")
+                for (def key : ["scope", "transport", "command", "args", "env_keys", "capabilities", "launch_hash", "source_type"]) {
+                    node.put(key, detail.path(key).asString(""))
+                }
+                node.put("id", node.path("host_id").asString() + ":" + node.path("username").asString("") + ":" + node.path("identifier").asString("") + ":" + node.path("path").asString("") + ":" + node.path("scope").asString(""))
+                result << node
+            }
+            println "fleetdm: McpServer extractor, report rows=" + response.body().path("results").size() + " McpServer objects=" + result.size()
+            return result

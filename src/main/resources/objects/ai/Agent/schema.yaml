@@ -1,0 +1,37 @@
+objectClasses:
+  Agent:
+    description: "AI agent (claude, codex, cursor, ...) found by ai_tools on a host"
+    connId:
+      UID: id
+      NAME: id
+    attributes:
+      id:
+        jsonType: string
+      host_id:
+        jsonType: integer
+      host_name:
+        jsonType: string
+      last_fetched:
+        jsonType: string
+      report_id:
+        jsonType: string
+      name:
+        jsonType: string
+      identifier:
+        jsonType: string
+      username:
+        jsonType: string
+      uid:
+        jsonType: string
+      path:
+        jsonType: string
+      category:
+        jsonType: string
+      confidence:
+        jsonType: string
+      running:
+        jsonType: string
+      risk_flags:
+        jsonType: string
+      sha256:
+        jsonType: string

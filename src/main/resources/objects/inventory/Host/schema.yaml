@@ -1,0 +1,45 @@
+objectClasses:
+  Host:
+    description: "Host (workstation) enrolled in Fleet"
+    connId:
+      UID: id
+      NAME: uuid
+    attributes:
+      id:
+        jsonType: integer
+      uuid:
+        jsonType: string
+      hostname:
+        jsonType: string
+      display_name:
+        jsonType: string
+      computer_name:
+        jsonType: string
+      platform:
+        jsonType: string
+      os_version:
+        jsonType: string
+      primary_ip:
+        jsonType: string
+      public_ip:
+        jsonType: string
+      hardware_serial:
+        jsonType: string
+      hardware_model:
+        jsonType: string
+      osquery_version:
+        jsonType: string
+      orbit_version:
+        jsonType: string
+      status:
+        jsonType: string
+      team_name:
+        jsonType: string
+      seen_time:
+        jsonType: string
+      last_enrolled_at:
+        jsonType: string
+      created_at:
+        jsonType: string
+      updated_at:
+        jsonType: string

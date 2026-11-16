@@ -1,0 +1,19 @@
+objectClasses:
+  Report:
+    description: "Scheduled report (query) in Fleet; used to find the ai_tools report"
+    connId:
+      UID: id
+      NAME: name
+    attributes:
+      id:
+        jsonType: integer
+      name:
+        jsonType: string
+      description:
+        jsonType: string
+      query:
+        jsonType: string
+      interval:
+        jsonType: integer
+      platform:
+        jsonType: string

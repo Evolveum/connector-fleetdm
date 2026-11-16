@@ -1,0 +1,34 @@
+objectClasses:
+  McpServer:
+    search:
+      custom:
+        emptyFilterSupported: true
+        supportedFilters:
+          - spec: attribute("id").eq().anySingleValue()
+        implementation: |
+          import org.identityconnectors.framework.common.objects.filter.EqualsFilter
+
+          println "fleetdm: McpServer custom search started"
+          def uid = null
+          def f = filter()
+          if (f instanceof EqualsFilter) {
+              uid = f.attribute.value[0] as String
+          }
+          def reports = objectClass("Report").search()
+          def report = reports.find { it.name.nameValue == "ai_tools_inventory" }
+          if (report == null) {
+              println "fleetdm: the report ai_tools_inventory does not exist in Fleet (created by ./lab.sh)"
+              return
+          }
+          println "fleetdm: McpServer custom search, report id=" + report.uid.uidValue
+          if (uid != null) {
+              for (def object : objectClass("McpServer").search(attributeFilter("report_id").eq(report.uid.uidValue))) {
+                  if (object.uid.uidValue == uid) {
+                      resultHandler.handle(object)
+                  }
+              }
+              println "fleetdm: McpServer custom search by id finished"
+              return
+          }
+          objectClass("McpServer").search(attributeFilter("report_id").eq(report.uid.uidValue), resultHandler)
+          println "fleetdm: McpServer custom search finished"
